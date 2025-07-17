@@ -201,6 +201,36 @@ ls -la config.yaml
 cp config.sample.yaml config.yaml
 ```
 
+### Environment Configuration (.env)
+
+The application supports **dual configuration**:
+- **`config.yaml`**: Base configuration
+- **`.env`**: Environment-specific overrides ✅ (Already created)
+
+```bash
+# Check .env file (should exist)
+ls -la .env
+
+# If missing, copy from example:
+cp .env.example .env
+
+# Edit .env for your environment:
+nano .env
+```
+
+**Priority Order (highest to lowest):**
+1. OS Environment Variables
+2. `.env` file
+3. `config.yaml` defaults
+
+**Production Security:**
+```bash
+# Always change these in production:
+JWT_SECRET=your-256-bit-secret
+ADMIN_PASSWORD=secure-password
+DB_PASSWORD=secure-db-password
+```
+
 ## 🧪 Running Tests
 
 ```bash

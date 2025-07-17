@@ -838,6 +838,20 @@ curl http://localhost:8080/api/health/detailed       # Detailed system status
 curl http://localhost:8080/swagger/index.html        # Swagger documentation
 ```
 
+### **Configuration Management**
+
+**Dual Configuration System:**
+- **`config.yaml`**: Base configuration file
+- **`.env`**: Environment-specific overrides (created ✅)
+- **Environment Variables**: Direct OS environment support
+
+```bash
+# Configuration priority (highest to lowest):
+# 1. Environment Variables (OS level)
+# 2. .env file (project level) 
+# 3. config.yaml (defaults)
+```
+
 ### **Default Admin Credentials**
 - **Email**: `admin@example.com`
 - **Password**: `admin` (change immediately in production)
@@ -851,6 +865,7 @@ curl http://localhost:8080/swagger/index.html        # Swagger documentation
 - RESTful API with 24 endpoints
 - Swagger documentation
 - Docker environment setup
+- **Dual Configuration System**: YAML + Environment Variables (`.env` support)
 - Security middleware (CORS, rate limiting, CSP)
 - Comprehensive test suite
 - Health monitoring
