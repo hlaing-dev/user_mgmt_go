@@ -38,7 +38,7 @@ func NewLogHandler(logRepo repository.UserLogRepository) *LogHandler {
 // @Success 200 {object} models.UserLogsListResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/logs/my-activity [get]
+// @Router /logs/my-activity [get]
 func (h *LogHandler) GetUserLogs(c *gin.Context) {
 	// Get user from context
 	userClaims, exists := middleware.GetUserFromContext(c)
@@ -94,7 +94,7 @@ func (h *LogHandler) GetUserLogs(c *gin.Context) {
 // @Success 200 {object} UserActivityResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/logs/my-activity/summary [get]
+// @Router /logs/my-activity/summary [get]
 func (h *LogHandler) GetUserActivity(c *gin.Context) {
 	// Get user from context
 	userClaims, exists := middleware.GetUserFromContext(c)
@@ -168,7 +168,7 @@ func (h *LogHandler) GetUserActivity(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/logs/search [get]
+// @Router /logs/search [get]
 func (h *LogHandler) SearchLogs(c *gin.Context) {
 	// Check admin role
 	if !middleware.IsAdmin(c) {
@@ -262,7 +262,7 @@ func (h *LogHandler) SearchLogs(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/logs/stats [get]
+// @Router /logs/stats [get]
 func (h *LogHandler) GetEventStats(c *gin.Context) {
 	// Check admin role
 	if !middleware.IsAdmin(c) {
@@ -329,7 +329,7 @@ func (h *LogHandler) GetEventStats(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
-// @Router /api/logs/{id} [get]
+// @Router /logs/{id} [get]
 func (h *LogHandler) GetLogDetails(c *gin.Context) {
 	logID := c.Param("id")
 	if logID == "" {
@@ -367,7 +367,7 @@ func (h *LogHandler) GetLogDetails(c *gin.Context) {
 	}
 
 	// Allow access if user is admin or if it's their own log entry
-	if !middleware.IsAdmin(c) && logEntry.UserID != nil && *logEntry.UserID != userClaims.UserID {
+	if !middleware.IsAdmin(c) && logEntry.UserID != nil && *logEntry.UserID != userClaims.UserID.String() {
 		c.JSON(http.StatusForbidden, models.NewErrorResponse(
 			http.StatusForbidden,
 			"Forbidden",
@@ -406,7 +406,7 @@ type EventStatsResponse struct {
 // @Produce json
 // @Success 200 {object} AvailableEventTypesResponse
 // @Failure 401 {object} models.ErrorResponse
-// @Router /api/logs/event-types [get]
+// @Router /logs/event-types [get]
 func (h *LogHandler) GetAvailableEventTypes(c *gin.Context) {
 	eventTypes := models.GetValidEventTypes()
 	

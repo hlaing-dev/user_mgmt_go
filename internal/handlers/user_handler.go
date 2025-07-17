@@ -46,7 +46,7 @@ func NewUserHandler(
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/users [get]
+// @Router /users [get]
 func (h *UserHandler) ListUsers(c *gin.Context) {
 	// Parse pagination parameters
 	params := repository.ListParams{
@@ -110,7 +110,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
-// @Router /api/users/{id} [get]
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUser(c *gin.Context) {
 	// Parse user ID
 	userIDStr := c.Param("id")
@@ -153,7 +153,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 409 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/users [post]
+// @Router /users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req models.UserCreateRequest
 
@@ -252,7 +252,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 409 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/users/{id} [put]
+// @Router /users/{id} [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	// Parse user ID
 	userIDStr := c.Param("id")
@@ -412,7 +412,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/users/{id} [delete]
+// @Router /users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	// Parse user ID
 	userIDStr := c.Param("id")

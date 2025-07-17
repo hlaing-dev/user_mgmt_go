@@ -34,7 +34,7 @@ const (
 // UserLog represents the log entry stored in MongoDB
 type UserLog struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	UserID    *uuid.UUID         `json:"user_id,omitempty" bson:"user_id,omitempty"` // Nullable for system events
+	UserID    *string            `json:"user_id,omitempty" bson:"user_id,omitempty"` // UUID as string, nullable for system events
 	Event     LogEventType       `json:"event" bson:"event"`
 	Data      LogData            `json:"data" bson:"data"`
 	Timestamp time.Time          `json:"timestamp" bson:"timestamp"`
@@ -100,8 +100,14 @@ type LogFilterRequest struct {
 
 // NewUserLog creates a new UserLog instance
 func NewUserLog(req UserLogCreateRequest) *UserLog {
+	var userIDStr *string
+	if req.UserID != nil {
+		userIDString := req.UserID.String()
+		userIDStr = &userIDString
+	}
+
 	return &UserLog{
-		UserID: req.UserID,
+		UserID: userIDStr,
 		Event:  req.Event,
 		Data: LogData{
 			Action:    req.Action,
@@ -118,9 +124,16 @@ func NewUserLog(req UserLogCreateRequest) *UserLog {
 
 // ToResponse converts UserLog model to UserLogResponse
 func (ul *UserLog) ToResponse() UserLogResponse {
+	var userID *uuid.UUID
+	if ul.UserID != nil {
+		if parsedUUID, err := uuid.Parse(*ul.UserID); err == nil {
+			userID = &parsedUUID
+		}
+	}
+
 	return UserLogResponse{
 		ID:        ul.ID.Hex(),
-		UserID:    ul.UserID,
+		UserID:    userID,
 		Event:     ul.Event,
 		Data:      ul.Data,
 		Timestamp: ul.Timestamp,

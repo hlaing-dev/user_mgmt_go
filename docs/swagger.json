@@ -18,7 +18,7 @@
     "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
-        "/api/admin/logs": {
+        "/admin/logs": {
             "get": {
                 "security": [
                     {
@@ -122,7 +122,7 @@
                 }
             }
         },
-        "/api/admin/maintenance": {
+        "/admin/maintenance": {
             "post": {
                 "security": [
                     {
@@ -165,7 +165,7 @@
                 }
             }
         },
-        "/api/admin/stats": {
+        "/admin/stats": {
             "get": {
                 "security": [
                     {
@@ -209,7 +209,7 @@
                 }
             }
         },
-        "/api/admin/users/bulk-create": {
+        "/admin/users/bulk-create": {
             "post": {
                 "security": [
                     {
@@ -272,7 +272,7 @@
                 }
             }
         },
-        "/api/admin/users/deleted": {
+        "/admin/users/deleted": {
             "get": {
                 "security": [
                     {
@@ -340,7 +340,7 @@
                 }
             }
         },
-        "/api/admin/users/{id}/permanent-delete": {
+        "/admin/users/{id}/permanent-delete": {
             "delete": {
                 "security": [
                     {
@@ -404,7 +404,7 @@
                 }
             }
         },
-        "/api/admin/users/{id}/restore": {
+        "/admin/users/{id}/restore": {
             "post": {
                 "security": [
                     {
@@ -468,7 +468,7 @@
                 }
             }
         },
-        "/api/auth/change-password": {
+        "/auth/change-password": {
             "post": {
                 "security": [
                     {
@@ -525,7 +525,7 @@
                 }
             }
         },
-        "/api/auth/login": {
+        "/auth/login": {
             "post": {
                 "description": "Authenticate admin user and return JWT tokens",
                 "consumes": [
@@ -577,7 +577,7 @@
                 }
             }
         },
-        "/api/auth/logout": {
+        "/auth/logout": {
             "post": {
                 "security": [
                     {
@@ -608,7 +608,7 @@
                 }
             }
         },
-        "/api/auth/profile": {
+        "/auth/profile": {
             "get": {
                 "security": [
                     {
@@ -645,7 +645,7 @@
                 }
             }
         },
-        "/api/auth/refresh": {
+        "/auth/refresh": {
             "post": {
                 "description": "Generate new access token using refresh token",
                 "consumes": [
@@ -697,7 +697,7 @@
                 }
             }
         },
-        "/api/logs/event-types": {
+        "/logs/event-types": {
             "get": {
                 "security": [
                     {
@@ -728,7 +728,7 @@
                 }
             }
         },
-        "/api/logs/my-activity": {
+        "/logs/my-activity": {
             "get": {
                 "security": [
                     {
@@ -791,7 +791,7 @@
                 }
             }
         },
-        "/api/logs/my-activity/summary": {
+        "/logs/my-activity/summary": {
             "get": {
                 "security": [
                     {
@@ -840,7 +840,7 @@
                 }
             }
         },
-        "/api/logs/search": {
+        "/logs/search": {
             "get": {
                 "security": [
                     {
@@ -939,7 +939,7 @@
                 }
             }
         },
-        "/api/logs/stats": {
+        "/logs/stats": {
             "get": {
                 "security": [
                     {
@@ -1006,7 +1006,7 @@
                 }
             }
         },
-        "/api/logs/{id}": {
+        "/logs/{id}": {
             "get": {
                 "security": [
                     {
@@ -1064,7 +1064,7 @@
                 }
             }
         },
-        "/api/users": {
+        "/users": {
             "get": {
                 "security": [
                     {
@@ -1211,7 +1211,7 @@
                 }
             }
         },
-        "/api/users/{id}": {
+        "/users/{id}": {
             "get": {
                 "security": [
                     {

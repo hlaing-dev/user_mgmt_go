@@ -324,7 +324,7 @@ info:
   title: User Management System API
   version: "1.0"
 paths:
-  /api/admin/logs:
+  /admin/logs:
     get:
       consumes:
       - application/json
@@ -392,7 +392,7 @@ paths:
       summary: Get user activity logs
       tags:
       - admin
-  /api/admin/maintenance:
+  /admin/maintenance:
     post:
       description: Run system maintenance tasks (log cleanup, etc.)
       produces:
@@ -419,7 +419,7 @@ paths:
       summary: Run system maintenance
       tags:
       - admin
-  /api/admin/stats:
+  /admin/stats:
     get:
       description: Get comprehensive system statistics and metrics
       produces:
@@ -447,7 +447,7 @@ paths:
       summary: Get system statistics
       tags:
       - admin
-  /api/admin/users/{id}/permanent-delete:
+  /admin/users/{id}/permanent-delete:
     delete:
       description: Permanently delete a user from the database (irreversible)
       parameters:
@@ -488,7 +488,7 @@ paths:
       summary: Permanently delete user
       tags:
       - admin
-  /api/admin/users/{id}/restore:
+  /admin/users/{id}/restore:
     post:
       description: Restore a soft-deleted user account
       parameters:
@@ -529,7 +529,7 @@ paths:
       summary: Restore deleted user
       tags:
       - admin
-  /api/admin/users/bulk-create:
+  /admin/users/bulk-create:
     post:
       consumes:
       - application/json
@@ -569,7 +569,7 @@ paths:
       summary: Bulk create users
       tags:
       - admin
-  /api/admin/users/deleted:
+  /admin/users/deleted:
     get:
       consumes:
       - application/json
@@ -613,7 +613,7 @@ paths:
       summary: Get deleted users
       tags:
       - admin
-  /api/auth/change-password:
+  /auth/change-password:
     post:
       consumes:
       - application/json
@@ -649,7 +649,7 @@ paths:
       summary: Change user password
       tags:
       - auth
-  /api/auth/login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -683,7 +683,7 @@ paths:
       summary: Admin login
       tags:
       - auth
-  /api/auth/logout:
+  /auth/logout:
     post:
       description: Logout user (client-side token invalidation)
       produces:
@@ -702,7 +702,7 @@ paths:
       summary: User logout
       tags:
       - auth
-  /api/auth/profile:
+  /auth/profile:
     get:
       description: Get authenticated user's profile information
       produces:
@@ -725,7 +725,7 @@ paths:
       summary: Get user profile
       tags:
       - auth
-  /api/auth/refresh:
+  /auth/refresh:
     post:
       consumes:
       - application/json
@@ -759,7 +759,7 @@ paths:
       summary: Refresh access token
       tags:
       - auth
-  /api/logs/{id}:
+  /logs/{id}:
     get:
       description: Get detailed information about a specific log entry
       parameters:
@@ -796,7 +796,7 @@ paths:
       summary: Get log entry details
       tags:
       - logs
-  /api/logs/event-types:
+  /logs/event-types:
     get:
       description: Get list of all available log event types
       produces:
@@ -815,7 +815,7 @@ paths:
       summary: Get available event types
       tags:
       - logs
-  /api/logs/my-activity:
+  /logs/my-activity:
     get:
       consumes:
       - application/json
@@ -856,7 +856,7 @@ paths:
       summary: Get user activity logs
       tags:
       - logs
-  /api/logs/my-activity/summary:
+  /logs/my-activity/summary:
     get:
       consumes:
       - application/json
@@ -887,7 +887,7 @@ paths:
       summary: Get user activity summary
       tags:
       - logs
-  /api/logs/search:
+  /logs/search:
     get:
       consumes:
       - application/json
@@ -952,7 +952,7 @@ paths:
       summary: Search logs
       tags:
       - logs
-  /api/logs/stats:
+  /logs/stats:
     get:
       consumes:
       - application/json
@@ -995,7 +995,7 @@ paths:
       summary: Get event statistics
       tags:
       - logs
-  /api/users:
+  /users:
     get:
       consumes:
       - application/json
@@ -1091,7 +1091,7 @@ paths:
       summary: Create new user
       tags:
       - users
-  /api/users/{id}:
+  /users/{id}:
     delete:
       description: Soft delete a user account
       parameters:

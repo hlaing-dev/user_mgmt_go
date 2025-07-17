@@ -854,7 +854,7 @@ curl http://localhost:8080/swagger/index.html        # Swagger documentation
 
 ### **Default Admin Credentials**
 - **Email**: `admin@example.com`
-- **Password**: `admin` (change immediately in production)
+- **Password**: `admin123` (change immediately in production)
 
 ### **Implementation Status**
 

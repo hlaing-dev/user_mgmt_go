@@ -198,7 +198,7 @@ func (r *userLogRepository) List(ctx context.Context, filter models.LogFilterReq
 func (r *userLogRepository) GetByUserID(ctx context.Context, userID uuid.UUID, params ListParams) (*models.UserLogsListResponse, error) {
 	params.SetDefaults()
 
-	filter := bson.M{"user_id": userID}
+	filter := bson.M{"user_id": userID.String()}
 	
 	// Count total documents
 	total, err := r.collection.CountDocuments(ctx, filter)
@@ -301,7 +301,7 @@ func (r *userLogRepository) GetEventStats(ctx context.Context, userID *uuid.UUID
 	}
 	
 	if userID != nil {
-		matchStage["user_id"] = *userID
+		matchStage["user_id"] = userID.String()
 	}
 
 	pipeline := []bson.M{
@@ -338,7 +338,7 @@ func (r *userLogRepository) GetEventStats(ctx context.Context, userID *uuid.UUID
 // GetUserActivity returns recent activity for a user
 func (r *userLogRepository) GetUserActivity(ctx context.Context, userID uuid.UUID, days int) ([]models.UserLogResponse, error) {
 	filter := bson.M{
-		"user_id": userID,
+		"user_id": userID.String(),
 		"timestamp": bson.M{
 			"$gte": time.Now().AddDate(0, 0, -days),
 		},
@@ -479,7 +479,7 @@ func (r *userLogRepository) buildLogFilter(filter models.LogFilterRequest) bson.
 	mongoFilter := bson.M{}
 
 	if filter.UserID != nil {
-		mongoFilter["user_id"] = *filter.UserID
+		mongoFilter["user_id"] = filter.UserID.String()
 	}
 
 	if filter.Event != nil {

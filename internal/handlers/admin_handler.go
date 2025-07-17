@@ -43,7 +43,7 @@ func NewAdminHandler(
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/stats [get]
+// @Router /admin/stats [get]
 func (h *AdminHandler) GetSystemStats(c *gin.Context) {
 	// Get system statistics
 	stats, err := h.repoManager.GetStats(c.Request.Context())
@@ -90,7 +90,7 @@ func (h *AdminHandler) GetSystemStats(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/logs [get]
+// @Router /admin/logs [get]
 func (h *AdminHandler) GetUserLogs(c *gin.Context) {
 	// Parse filter parameters
 	filter := models.LogFilterRequest{
@@ -159,7 +159,7 @@ func (h *AdminHandler) GetUserLogs(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/users/deleted [get]
+// @Router /admin/users/deleted [get]
 func (h *AdminHandler) GetDeletedUsers(c *gin.Context) {
 	// Parse pagination parameters
 	params := repository.ListParams{
@@ -205,7 +205,7 @@ func (h *AdminHandler) GetDeletedUsers(c *gin.Context) {
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/users/{id}/restore [post]
+// @Router /admin/users/{id}/restore [post]
 func (h *AdminHandler) RestoreUser(c *gin.Context) {
 	// Parse user ID
 	userIDStr := c.Param("id")
@@ -255,7 +255,7 @@ func (h *AdminHandler) RestoreUser(c *gin.Context) {
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/users/{id}/permanent-delete [delete]
+// @Router /admin/users/{id}/permanent-delete [delete]
 func (h *AdminHandler) PermanentDeleteUser(c *gin.Context) {
 	// Parse user ID
 	userIDStr := c.Param("id")
@@ -319,7 +319,7 @@ func (h *AdminHandler) PermanentDeleteUser(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/users/bulk-create [post]
+// @Router /admin/users/bulk-create [post]
 func (h *AdminHandler) BulkCreateUsers(c *gin.Context) {
 	var req BulkCreateUsersRequest
 
@@ -462,7 +462,7 @@ func (h *AdminHandler) BulkCreateUsers(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/admin/maintenance [post]
+// @Router /admin/maintenance [post]
 func (h *AdminHandler) RunMaintenance(c *gin.Context) {
 	if err := h.repoManager.RunMaintenance(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, models.NewErrorResponse(

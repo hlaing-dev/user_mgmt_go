@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/admin/logs": {
+        "/admin/logs": {
             "get": {
                 "security": [
                     {
@@ -128,7 +128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/maintenance": {
+        "/admin/maintenance": {
             "post": {
                 "security": [
                     {
@@ -171,7 +171,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/stats": {
+        "/admin/stats": {
             "get": {
                 "security": [
                     {
@@ -215,7 +215,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/bulk-create": {
+        "/admin/users/bulk-create": {
             "post": {
                 "security": [
                     {
@@ -278,7 +278,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/deleted": {
+        "/admin/users/deleted": {
             "get": {
                 "security": [
                     {
@@ -346,7 +346,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/{id}/permanent-delete": {
+        "/admin/users/{id}/permanent-delete": {
             "delete": {
                 "security": [
                     {
@@ -410,7 +410,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/users/{id}/restore": {
+        "/admin/users/{id}/restore": {
             "post": {
                 "security": [
                     {
@@ -474,7 +474,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/change-password": {
+        "/auth/change-password": {
             "post": {
                 "security": [
                     {
@@ -531,7 +531,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/login": {
+        "/auth/login": {
             "post": {
                 "description": "Authenticate admin user and return JWT tokens",
                 "consumes": [
@@ -583,7 +583,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/logout": {
+        "/auth/logout": {
             "post": {
                 "security": [
                     {
@@ -614,7 +614,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/profile": {
+        "/auth/profile": {
             "get": {
                 "security": [
                     {
@@ -651,7 +651,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/refresh": {
+        "/auth/refresh": {
             "post": {
                 "description": "Generate new access token using refresh token",
                 "consumes": [
@@ -703,7 +703,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/event-types": {
+        "/logs/event-types": {
             "get": {
                 "security": [
                     {
@@ -734,7 +734,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/my-activity": {
+        "/logs/my-activity": {
             "get": {
                 "security": [
                     {
@@ -797,7 +797,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/my-activity/summary": {
+        "/logs/my-activity/summary": {
             "get": {
                 "security": [
                     {
@@ -846,7 +846,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/search": {
+        "/logs/search": {
             "get": {
                 "security": [
                     {
@@ -945,7 +945,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/stats": {
+        "/logs/stats": {
             "get": {
                 "security": [
                     {
@@ -1012,7 +1012,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/logs/{id}": {
+        "/logs/{id}": {
             "get": {
                 "security": [
                     {
@@ -1070,7 +1070,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users": {
+        "/users": {
             "get": {
                 "security": [
                     {
@@ -1217,7 +1217,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/{id}": {
+        "/users/{id}": {
             "get": {
                 "security": [
                     {

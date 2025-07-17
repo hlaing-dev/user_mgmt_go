@@ -42,7 +42,7 @@ func NewAuthHandler(
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/auth/login [post]
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req models.LoginRequest
 
@@ -129,7 +129,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/auth/refresh [post]
+// @Router /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req models.RefreshTokenRequest
 
@@ -170,7 +170,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} models.SuccessResponse
 // @Failure 401 {object} models.ErrorResponse
-// @Router /api/auth/logout [post]
+// @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// Get user from context
 	userClaims, exists := middleware.GetUserFromContext(c)
@@ -210,7 +210,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 // @Success 200 {object} models.UserResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
-// @Router /api/auth/profile [get]
+// @Router /auth/profile [get]
 func (h *AuthHandler) GetProfile(c *gin.Context) {
 	// Get user from context
 	userClaims, exists := middleware.GetUserFromContext(c)
@@ -251,7 +251,7 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /api/auth/change-password [post]
+// @Router /auth/change-password [post]
 func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	var req ChangePasswordRequest
 
