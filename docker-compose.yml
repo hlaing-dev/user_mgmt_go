@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for user data
+  postgres:
+    image: postgres:15-alpine
+    container_name: user_mgmt_postgres
+    environment:
+      POSTGRES_DB: user_mgmt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - user_mgmt_network
+
+  # MongoDB for logs
+  mongodb:
+    image: mongo:6.0
+    container_name: user_mgmt_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: user_logs
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init.js
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - user_mgmt_network
+
+  # Redis for caching (optional - for future use)
+  redis:
+    image: redis:7-alpine
+    container_name: user_mgmt_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - user_mgmt_network
+
+  # Application container (for containerized development)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user_mgmt_app
+    environment:
+      # Server Configuration
+      PORT: 8080
+      GIN_MODE: debug
+      HOST: 0.0.0.0
+      
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password123
+      DB_NAME: user_mgmt
+      DB_SSLMODE: disable
+      
+      # MongoDB Configuration
+      MONGO_URI: mongodb://admin:password123@mongodb:27017
+      MONGO_DATABASE: user_logs
+      
+      # JWT Configuration
+      JWT_SECRET: super-secret-jwt-key-for-development-only-change-in-production
+      JWT_EXPIRY: 24h
+      
+      # Admin Configuration
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin123
+      
+      # CORS Configuration
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/tmp
+    networks:
+      - user_mgmt_network
+    profiles:
+      - full  # Only start with `docker-compose --profile full up`
+
+volumes:
+  postgres_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  user_mgmt_network:
+    driver: bridge
+
+# Development commands:
+# Start databases only: docker-compose up -d postgres mongodb
+# Start everything: docker-compose --profile full up -d
+# View logs: docker-compose logs -f
+# Stop all: docker-compose down
+# Reset data: docker-compose down -v 

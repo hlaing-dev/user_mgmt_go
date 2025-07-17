@@ -1,0 +1,152 @@
+# User Management System Configuration
+# Copy this file to config.yaml and update with your settings
+
+# Server Configuration
+server:
+  host: "localhost"           # Server host (use 0.0.0.0 for Docker)
+  port: "8080"               # Server port
+  gin_mode: "debug"          # Gin mode: debug, release, test
+  read_timeout: 30           # Server read timeout in seconds
+  write_timeout: 30          # Server write timeout in seconds
+  cors:
+    allowed_origins:         # CORS allowed origins
+      - "http://localhost:3000"
+      - "http://localhost:3001"
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"
+    allowed_headers:
+      - "Origin"
+      - "Content-Type"
+      - "Accept"
+      - "Authorization"
+      - "X-Requested-With"
+
+# Database Configuration (PostgreSQL)
+database:
+  host: "localhost"          # Database host
+  port: 5432                 # Database port
+  user: "postgres"           # Database username
+  password: "password123"    # Database password (CHANGE IN PRODUCTION!)
+  name: "user_mgmt"          # Database name
+  sslmode: "disable"         # SSL mode: disable, require, verify-ca, verify-full
+  max_open_conns: 25         # Maximum open connections
+  max_idle_conns: 25         # Maximum idle connections
+  conn_max_lifetime: 300     # Connection max lifetime in seconds
+
+# MongoDB Configuration (for logging)
+mongodb:
+  uri: "mongodb://localhost:27017"  # MongoDB connection URI
+  database: "user_logs"             # MongoDB database name
+  username: ""                      # MongoDB username (if required)
+  password: ""                      # MongoDB password (if required)
+  max_pool_size: 100               # Maximum connection pool size
+  min_pool_size: 5                 # Minimum connection pool size
+
+# JWT Configuration
+jwt:
+  secret: "your-super-secret-jwt-key"  # JWT secret key (CHANGE IN PRODUCTION!)
+  expiry: "24h"                        # Token expiry duration (24h, 1h, 30m)
+  refresh_expiry: "168h"               # Refresh token expiry (7 days)
+  issuer: "user-mgmt-system"           # JWT issuer
+
+# Admin Configuration
+admin:
+  email: "admin@example.com"     # Default admin email
+  password: "admin123"           # Default admin password (CHANGE IN PRODUCTION!)
+  auto_create: true              # Auto-create admin user on startup
+
+# Security Configuration
+security:
+  bcrypt_cost: 12               # BCrypt hashing cost (10-15, higher = more secure but slower)
+  rate_limit:
+    enabled: true               # Enable rate limiting
+    requests_per_minute: 100    # Max requests per minute per IP
+    burst: 10                   # Burst capacity
+  ip_whitelist: []              # IP addresses to whitelist (empty = all allowed)
+  ip_blacklist: []              # IP addresses to blacklist
+
+# Logging Configuration
+logging:
+  level: "debug"                # Log level: debug, info, warn, error
+  format: "json"                # Log format: json, text
+  output: "stdout"              # Log output: stdout, file
+  file_path: "./logs/app.log"   # Log file path (if output = file)
+  max_size: 100                 # Max log file size in MB
+  max_backups: 3                # Max number of log file backups
+  max_age: 28                   # Max age of log files in days
+  compress: true                # Compress old log files
+  async_logging: true           # Enable async logging for better performance
+
+# Feature Flags
+features:
+  enable_swagger: true          # Enable Swagger documentation
+  enable_metrics: true          # Enable metrics endpoint
+  enable_health_check: true     # Enable health check endpoint
+  enable_user_registration: true # Allow new user registration
+  enable_password_reset: true   # Enable password reset functionality
+  enable_email_verification: false # Enable email verification (requires email config)
+
+# Email Configuration (optional - for password reset, verification)
+email:
+  enabled: false                # Enable email functionality
+  smtp_host: "smtp.gmail.com"   # SMTP server host
+  smtp_port: 587                # SMTP server port
+  smtp_username: ""             # SMTP username
+  smtp_password: ""             # SMTP password (use app password for Gmail)
+  from_email: "noreply@example.com" # From email address
+  from_name: "User Management System" # From name
+
+# Cache Configuration (Redis - optional)
+cache:
+  enabled: false                # Enable Redis caching
+  host: "localhost"             # Redis host
+  port: 6379                    # Redis port
+  password: ""                  # Redis password
+  db: 0                         # Redis database number
+  default_expiry: "1h"          # Default cache expiry
+
+# Monitoring Configuration
+monitoring:
+  enabled: true                 # Enable monitoring endpoints
+  metrics_path: "/metrics"      # Prometheus metrics path
+  health_path: "/health"        # Health check path
+  ready_path: "/ready"          # Readiness check path
+
+# Development Configuration
+development:
+  auto_migrate: true            # Auto-run database migrations
+  seed_test_data: false         # Seed test data on startup
+  debug_routes: true            # Print routes on startup
+  hot_reload: false             # Enable hot reload (use Air for development)
+
+# Production Security Settings
+# Uncomment and configure for production deployment
+production:
+  # force_https: true           # Force HTTPS redirects
+  # secure_headers: true        # Add security headers
+  # hide_gin_debug: true        # Hide Gin debug information
+  # trusted_proxies: []         # List of trusted proxy IPs
+  # max_request_size: "10MB"    # Maximum request body size
+
+# Example Production Override:
+# To use this config in production, copy it to config.production.yaml
+# and update the sensitive values:
+#
+# jwt:
+#   secret: "GENERATE-A-STRONG-32-CHAR-SECRET-KEY"
+# 
+# database:
+#   password: "STRONG-DATABASE-PASSWORD"
+# 
+# admin:
+#   password: "STRONG-ADMIN-PASSWORD"
+#
+# server:
+#   gin_mode: "release"
+#
+# logging:
+#   level: "info" 
