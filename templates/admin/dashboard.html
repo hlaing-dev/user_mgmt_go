@@ -1,0 +1,272 @@
+{{template "base.html" .}}
+
+{{define "content"}}
+<div class="row mb-4">
+    <!-- Statistics Cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Users</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{.Data.UserCount}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">System Health</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{if .Data.Stats.database_health}}
+                                <span class="text-success">Healthy</span>
+                            {{else}}
+                                <span class="text-danger">Issues</span>
+                            {{end}}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-heart-pulse fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Recent Activity</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{.Data.LogCount}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-activity fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Storage Used</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{if .Data.Stats.storage_used}}
+                                {{.Data.Stats.storage_used}}%
+                            {{else}}
+                                N/A
+                            {{end}}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-hdd fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Users -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Users</h6>
+                <a href="/admin/users" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {{if .Data.RecentUsers}}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Data.RecentUsers}}
+                            <tr>
+                                <td>{{.Name}}</td>
+                                <td>{{.Email}}</td>
+                                <td>{{formatDate .CreatedAt}}</td>
+                                <td>
+                                    <a href="/admin/users?user_id={{.ID}}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+                {{else}}
+                <p class="text-muted">No recent users</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                <a href="/admin/logs" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {{if .Data.RecentLogs}}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Event</th>
+                                <th>Time</th>
+                                <th>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Data.RecentLogs}}
+                            <tr>
+                                <td>{{.UserEmail}}</td>
+                                <td>
+                                    <span class="badge bg-{{if eq .Event "login"}}success{{else if eq .Event "logout"}}warning{{else if eq .Event "user_created"}}primary{{else}}secondary{{end}}">
+                                        {{.Event}}
+                                    </span>
+                                </td>
+                                <td>{{formatTime .Timestamp}}</td>
+                                <td><small>{{.IPAddress}}</small></td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+                {{else}}
+                <p class="text-muted">No recent activity</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">System Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Database Status</h6>
+                        <ul class="list-unstyled">
+                            <li>
+                                <strong>PostgreSQL:</strong> 
+                                <span class="badge bg-{{if .Data.Stats.database_health}}success{{else}}danger{{end}}">
+                                    {{if .Data.Stats.database_health}}Connected{{else}}Disconnected{{end}}
+                                </span>
+                            </li>
+                            <li><strong>Total Tables:</strong> {{if .Data.Stats.total_tables}}{{.Data.Stats.total_tables}}{{else}}N/A{{end}}</li>
+                            <li><strong>Last Backup:</strong> {{if .Data.Stats.last_backup}}{{.Data.Stats.last_backup}}{{else}}Never{{end}}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Performance Metrics</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Uptime:</strong> {{if .Data.Stats.uptime}}{{.Data.Stats.uptime}}{{else}}N/A{{end}}</li>
+                            <li><strong>Memory Usage:</strong> {{if .Data.Stats.memory_usage}}{{.Data.Stats.memory_usage}}{{else}}N/A{{end}}</li>
+                            <li><strong>CPU Usage:</strong> {{if .Data.Stats.cpu_usage}}{{.Data.Stats.cpu_usage}}{{else}}N/A{{end}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-primary btn-block" onclick="openCreateUserModal()">
+                            <i class="bi bi-person-plus"></i> Create User
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/admin/logs" class="btn btn-info btn-block">
+                            <i class="bi bi-search"></i> Search Logs
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-warning btn-block" onclick="runMaintenance()">
+                            <i class="bi bi-tools"></i> Run Maintenance
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/admin/stats" class="btn btn-success btn-block">
+                            <i class="bi bi-graph-up"></i> View Stats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+function openCreateUserModal() {
+    // This would open a modal for creating users
+    window.location.href = '/admin/users?action=create';
+}
+
+function runMaintenance() {
+    if (confirm('Are you sure you want to run system maintenance?')) {
+        fetch('/api/admin/maintenance', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Maintenance completed successfully');
+                location.reload();
+            } else {
+                alert('Maintenance failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+    }
+}
+</script>
+{{end}} 

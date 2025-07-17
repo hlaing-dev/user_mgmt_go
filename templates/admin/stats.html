@@ -1,0 +1,294 @@
+{{template "base.html" .}}
+
+{{define "content"}}
+<!-- System Health Overview -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">System Health Dashboard</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="mb-3">
+                            {{if .Data.health}}
+                            <i class="bi bi-check-circle fa-3x text-success"></i>
+                            <h5 class="mt-2 text-success">System Healthy</h5>
+                            {{else}}
+                            <i class="bi bi-exclamation-triangle fa-3x text-warning"></i>
+                            <h5 class="mt-2 text-warning">System Issues</h5>
+                            {{end}}
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Service Status</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <span class="badge bg-{{if .Data.system_stats.database_health}}success{{else}}danger{{end}} me-2">
+                                    {{if .Data.system_stats.database_health}}●{{else}}●{{end}}
+                                </span>
+                                <strong>Database Connection</strong>
+                                <small class="text-muted ms-2">
+                                    {{if .Data.system_stats.database_health}}Connected{{else}}Disconnected{{end}}
+                                </small>
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-success me-2">●</span>
+                                <strong>API Service</strong>
+                                <small class="text-muted ms-2">Running</small>
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-success me-2">●</span>
+                                <strong>Authentication</strong>
+                                <small class="text-muted ms-2">Active</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Stats</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <h4 class="text-primary">{{if .Data.system_stats.total_users}}{{.Data.system_stats.total_users}}{{else}}0{{end}}</h4>
+                        <small class="text-muted">Total Users</small>
+                    </div>
+                    <div class="mb-3">
+                        <h4 class="text-info">{{if .Data.system_stats.active_sessions}}{{.Data.system_stats.active_sessions}}{{else}}0{{end}}</h4>
+                        <small class="text-muted">Active Sessions</small>
+                    </div>
+                    <div class="mb-3">
+                        <h4 class="text-success">{{if .Data.system_stats.total_requests}}{{.Data.system_stats.total_requests}}{{else}}0{{end}}</h4>
+                        <small class="text-muted">Total Requests</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Statistics -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Event Statistics (Last 30 Days)</h6>
+            </div>
+            <div class="card-body">
+                {{if .Data.event_stats}}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Event Type</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range $event, $count := .Data.event_stats}}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{if eq $event "login"}}success{{else if eq $event "logout"}}warning{{else if eq $event "user_created"}}primary{{else}}secondary{{end}}">
+                                        {{$event}}
+                                    </span>
+                                </td>
+                                <td>{{$count}}</td>
+                                <td>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar" style="width: {{$count}}%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+                {{else}}
+                <p class="text-muted">No event statistics available</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">System Resources</h6>
+            </div>
+            <div class="card-body">
+                <h6>Database Information</h6>
+                <ul class="list-unstyled mb-4">
+                    <li><strong>Total Tables:</strong> {{if .Data.system_stats.total_tables}}{{.Data.system_stats.total_tables}}{{else}}N/A{{end}}</li>
+                    <li><strong>Database Size:</strong> {{if .Data.system_stats.database_size}}{{.Data.system_stats.database_size}}{{else}}N/A{{end}}</li>
+                    <li><strong>Last Backup:</strong> {{if .Data.system_stats.last_backup}}{{.Data.system_stats.last_backup}}{{else}}Never{{end}}</li>
+                </ul>
+
+                <h6>Performance Metrics</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Uptime:</strong> {{if .Data.system_stats.uptime}}{{.Data.system_stats.uptime}}{{else}}N/A{{end}}</li>
+                    <li><strong>Memory Usage:</strong> {{if .Data.system_stats.memory_usage}}{{.Data.system_stats.memory_usage}}{{else}}N/A{{end}}</li>
+                    <li><strong>CPU Usage:</strong> {{if .Data.system_stats.cpu_usage}}{{.Data.system_stats.cpu_usage}}{{else}}N/A{{end}}</li>
+                    <li><strong>Response Time:</strong> {{if .Data.system_stats.avg_response_time}}{{.Data.system_stats.avg_response_time}}{{else}}N/A{{end}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Activity Charts</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h6>Event Distribution</h6>
+                        <canvas id="eventChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6>User Activity Timeline</h6>
+                        <canvas id="activityChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">API Endpoint Statistics</h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="refreshStats()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Method</th>
+                                <th>Total Calls</th>
+                                <th>Success Rate</th>
+                                <th>Avg Response Time</th>
+                                <th>Last Called</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/api/auth/login</code></td>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td>{{if .Data.system_stats.login_calls}}{{.Data.system_stats.login_calls}}{{else}}0{{end}}</td>
+                                <td><span class="badge bg-success">{{if .Data.system_stats.login_success_rate}}{{.Data.system_stats.login_success_rate}}{{else}}100%{{end}}</span></td>
+                                <td>{{if .Data.system_stats.login_avg_time}}{{.Data.system_stats.login_avg_time}}{{else}}N/A{{end}}</td>
+                                <td>{{if .Data.system_stats.login_last_call}}{{.Data.system_stats.login_last_call}}{{else}}Never{{end}}</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/users</code></td>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td>{{if .Data.system_stats.users_get_calls}}{{.Data.system_stats.users_get_calls}}{{else}}0{{end}}</td>
+                                <td><span class="badge bg-success">{{if .Data.system_stats.users_success_rate}}{{.Data.system_stats.users_success_rate}}{{else}}100%{{end}}</span></td>
+                                <td>{{if .Data.system_stats.users_avg_time}}{{.Data.system_stats.users_avg_time}}{{else}}N/A{{end}}</td>
+                                <td>{{if .Data.system_stats.users_last_call}}{{.Data.system_stats.users_last_call}}{{else}}Never{{end}}</td>
+                            </tr>
+                            <tr>
+                                <td><code>/api/users</code></td>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td>{{if .Data.system_stats.users_post_calls}}{{.Data.system_stats.users_post_calls}}{{else}}0{{end}}</td>
+                                <td><span class="badge bg-success">{{if .Data.system_stats.users_post_success_rate}}{{.Data.system_stats.users_post_success_rate}}{{else}}100%{{end}}</span></td>
+                                <td>{{if .Data.system_stats.users_post_avg_time}}{{.Data.system_stats.users_post_avg_time}}{{else}}N/A{{end}}</td>
+                                <td>{{if .Data.system_stats.users_post_last_call}}{{.Data.system_stats.users_post_last_call}}{{else}}Never{{end}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function refreshStats() {
+    location.reload();
+}
+
+// Event Distribution Chart
+const eventCtx = document.getElementById('eventChart').getContext('2d');
+const eventData = {
+    {{if .Data.event_stats}}
+    labels: [{{range $event, $count := .Data.event_stats}}'{{$event}}',{{end}}],
+    datasets: [{
+        data: [{{range $event, $count := .Data.event_stats}}{{$count}},{{end}}],
+        backgroundColor: [
+            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'
+        ]
+    }]
+    {{else}}
+    labels: ['No Data'],
+    datasets: [{
+        data: [1],
+        backgroundColor: ['#ddd']
+    }]
+    {{end}}
+};
+
+new Chart(eventCtx, {
+    type: 'doughnut',
+    data: eventData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Activity Timeline Chart (mock data for demonstration)
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+const activityData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [{
+        label: 'User Activity',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        borderColor: '#3498db',
+        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+        tension: 0.4
+    }]
+};
+
+new Chart(activityCtx, {
+    type: 'line',
+    data: activityData,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Auto-refresh every 60 seconds
+setInterval(refreshStats, 60000);
+</script>
+{{end}} 

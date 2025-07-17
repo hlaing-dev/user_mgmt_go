@@ -10,10 +10,11 @@ import (
 
 // HandlerManager manages all API handlers
 type HandlerManager struct {
-	AuthHandler  *AuthHandler
-	UserHandler  *UserHandler
-	AdminHandler *AdminHandler
-	LogHandler   *LogHandler
+	AuthHandler       *AuthHandler
+	UserHandler       *UserHandler
+	AdminHandler      *AdminHandler
+	AdminPanelHandler *AdminPanelHandler
+	LogHandler        *LogHandler
 	
 	middlewareManager *middleware.MiddlewareManager
 }
@@ -39,6 +40,11 @@ func NewHandlerManager(
 			repoManager.Repos.Log,
 			repoManager,
 		),
+		AdminPanelHandler: NewAdminPanelHandler(
+			repoManager.Repos.User,
+			repoManager.Repos.Log,
+			repoManager,
+		),
 		LogHandler: NewLogHandler(
 			repoManager.Repos.Log,
 		),
@@ -50,6 +56,9 @@ func NewHandlerManager(
 func (hm *HandlerManager) SetupRoutes(router *gin.Engine) {
 	// Setup global middleware
 	hm.middlewareManager.SetupGlobalMiddleware(router)
+
+	// Setup admin panel web interface routes
+	hm.AdminPanelHandler.SetupAdminPanelRoutes(router, hm.middlewareManager)
 
 	// API root
 	api := router.Group("/api")

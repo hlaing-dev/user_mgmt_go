@@ -1,0 +1,260 @@
+{{template "base.html" .}}
+
+{{define "content"}}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Deleted Users Management</strong> - These users have been soft-deleted and can be restored.
+        </div>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-info" onclick="refreshDeletedUsers()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <button class="btn btn-danger" onclick="bulkPermanentDelete()" disabled id="bulkDeleteBtn">
+            <i class="bi bi-trash3"></i> Bulk Permanent Delete
+        </button>
+    </div>
+</div>
+
+<!-- Deleted Users Table -->
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Deleted Users 
+            {{if .Data.Total}}
+                <span class="badge bg-danger">{{.Data.Total}} deleted</span>
+            {{end}}
+        </h6>
+    </div>
+    <div class="card-body">
+        {{if .Data.Users}}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Originally Created</th>
+                        <th>Deleted At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Data.Users}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="user-checkbox" value="{{.ID}}" onchange="updateBulkDeleteButton()">
+                        </td>
+                        <td><small><code>{{.ID}}</code></small></td>
+                        <td><strong>{{.Name}}</strong></td>
+                        <td>{{.Email}}</td>
+                        <td>{{formatTime .CreatedAt}}</td>
+                        <td>
+                            <span class="text-danger">
+                                {{if .DeletedAt}}{{formatTime .DeletedAt}}{{else}}Unknown{{end}}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-success" onclick="restoreUser('{{.ID}}', '{{.Email}}')" title="Restore User">
+                                    <i class="bi bi-arrow-clockwise"></i> Restore
+                                </button>
+                                <button class="btn btn-danger" onclick="permanentDeleteUser('{{.ID}}', '{{.Email}}')" title="Permanent Delete">
+                                    <i class="bi bi-trash3"></i> Delete Forever
+                                </button>
+                                <button class="btn btn-info" onclick="viewDeletedUserLogs('{{.ID}}')" title="View Logs">
+                                    <i class="bi bi-clock-history"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {{if gt .Data.TotalPages 1}}
+        <nav aria-label="Deleted users pagination">
+            <ul class="pagination justify-content-center">
+                {{if gt .Data.Page 1}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{sub .Data.Page 1}}&page_size={{.Data.PageSize}}">Previous</a>
+                </li>
+                {{end}}
+                
+                {{range $i := (slice 1 (add .Data.TotalPages 1))}}
+                <li class="page-item {{if eq $i $.Data.Page}}active{{end}}">
+                    <a class="page-link" href="?page={{$i}}&page_size={{$.Data.PageSize}}">{{$i}}</a>
+                </li>
+                {{end}}
+                
+                {{if lt .Data.Page .Data.TotalPages}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{add .Data.Page 1}}&page_size={{.Data.PageSize}}">Next</a>
+                </li>
+                {{end}}
+            </ul>
+        </nav>
+        {{end}}
+        {{else}}
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle fa-3x text-success mb-3"></i>
+            <h5>No deleted users</h5>
+            <p class="text-muted">All users are active. No users have been deleted.</p>
+            <a href="/admin/users" class="btn btn-primary">
+                <i class="bi bi-people"></i> Manage Active Users
+            </a>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Information Cards -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-info-circle"></i> Restore Information
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Restored users will be fully functional again</li>
+                    <li>All original data and timestamps are preserved</li>
+                    <li>User will need to login again after restoration</li>
+                    <li>Restoration is logged in the activity system</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Permanent Deletion Warning
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Permanent deletion is irreversible</strong></li>
+                    <li>All user data will be completely removed</li>
+                    <li>Associated logs will remain for audit purposes</li>
+                    <li>This action requires confirmation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+function refreshDeletedUsers() {
+    location.reload();
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateBulkDeleteButton();
+}
+
+function updateBulkDeleteButton() {
+    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    
+    if (selectedCheckboxes.length > 0) {
+        bulkDeleteBtn.disabled = false;
+        bulkDeleteBtn.innerHTML = `<i class="bi bi-trash3"></i> Bulk Permanent Delete (${selectedCheckboxes.length})`;
+    } else {
+        bulkDeleteBtn.disabled = true;
+        bulkDeleteBtn.innerHTML = '<i class="bi bi-trash3"></i> Bulk Permanent Delete';
+    }
+}
+
+function restoreUser(userId, userEmail) {
+    if (confirm(`Are you sure you want to restore user "${userEmail}"? They will be able to login again.`)) {
+        fetch(`/api/admin/users/${userId}/restore`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success || response.ok) {
+                alert('User restored successfully');
+                location.reload();
+            } else {
+                alert('Failed to restore user: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Error restoring user: ' + error.message);
+        });
+    }
+}
+
+function permanentDeleteUser(userId, userEmail) {
+    const confirmMessage = `⚠️ PERMANENT DELETE WARNING ⚠️\n\nYou are about to PERMANENTLY delete user "${userEmail}".\n\nThis action:\n- CANNOT be undone\n- Will remove ALL user data\n- Will keep logs for audit purposes\n\nType "DELETE" to confirm:`;
+    
+    const confirmation = prompt(confirmMessage);
+    
+    if (confirmation === 'DELETE') {
+        fetch(`/api/admin/users/${userId}/permanent-delete`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success || response.ok) {
+                alert('User permanently deleted');
+                location.reload();
+            } else {
+                alert('Failed to permanently delete user: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Error permanently deleting user: ' + error.message);
+        });
+    } else if (confirmation !== null) {
+        alert('Permanent deletion cancelled. You must type "DELETE" exactly to confirm.');
+    }
+}
+
+function bulkPermanentDelete() {
+    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+    
+    if (selectedIds.length === 0) return;
+    
+    const confirmMessage = `⚠️ BULK PERMANENT DELETE WARNING ⚠️\n\nYou are about to PERMANENTLY delete ${selectedIds.length} users.\n\nThis action:\n- CANNOT be undone\n- Will remove ALL data for these users\n- Will keep logs for audit purposes\n\nType "DELETE ALL" to confirm:`;
+    
+    const confirmation = prompt(confirmMessage);
+    
+    if (confirmation === 'DELETE ALL') {
+        // This would require a bulk delete API endpoint
+        alert('Bulk permanent delete feature would be implemented with a dedicated API endpoint');
+    } else if (confirmation !== null) {
+        alert('Bulk permanent deletion cancelled. You must type "DELETE ALL" exactly to confirm.');
+    }
+}
+
+function viewDeletedUserLogs(userId) {
+    window.location.href = `/admin/logs?user_id=${userId}`;
+}
+</script>
+{{end}} 
