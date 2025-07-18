@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Logs - User Management Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/admin/static/css/admin.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="bi bi-shield-check"></i> Admin Panel</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="/admin/dashboard" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a href="/admin/users" class="sidebar-link"><i class="bi bi-people"></i> Users</a></li>
+                <li><a href="/admin/logs" class="sidebar-link"><i class="bi bi-journal-text"></i> Activity Logs</a></li>
+                <li><a href="/admin/stats" class="sidebar-link"><i class="bi bi-graph-up"></i> Statistics</a></li>
+                <li><a href="/admin/deleted-users" class="sidebar-link"><i class="bi bi-trash"></i> Deleted Users</a></li>
+                <li class="nav-divider"></li>
+                <li><a href="/swagger/index.html" class="sidebar-link" target="_blank"><i class="bi bi-file-text"></i> API Docs</a></li>
+                <li><a href="#" onclick="logout()" class="sidebar-link text-danger"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        
+        <div id="content" class="content">
+            
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="d-flex align-items-center ms-auto">
+                        
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Test Name 2
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/api/auth/profile">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </nav>
+
+            
+            <div class="container-fluid mt-4">
+                
+<div class="row mb-4">
+    <div class="col-12">
+        
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0"><i class="bi bi-funnel"></i> Filter Logs</h6>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">User ID</label>
+                        <input type="text" name="user_id" class="form-control" placeholder="User UUID..." 
+                               value="">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Event Type</label>
+                        <select name="event" class="form-select">
+                            <option value="">All Events</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="user_created">User Created</option>
+                            <option value="user_updated">User Updated</option>
+                            <option value="user_deleted">User Deleted</option>
+                            <option value="password_changed">Password Changed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Page Size</label>
+                        <select name="page_size" class="form-select">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Action</label>
+                        <input type="text" name="action" class="form-control" placeholder="Action..." 
+                               value="">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-search"></i> Filter
+                        </button>
+                        <a href="/admin/logs" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Activity Logs
+            
+                <span class="badge bg-secondary">573 total</span>
+            
+        </h6>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" onclick="exportLogs()">
+                <i class="bi bi-download"></i> Export
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="refreshLogs()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Event</th>
+                        <th>Action</th>
+                        <th>IP Address</th>
+                        <th>User Agent</th>
+                        <th>Details</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:58:50</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36fcca0d88c1e353c326')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36fcca0d88c1e353c326')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:58:40</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36f2ca0d88c1e353c325')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36f2ca0d88c1e353c325')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:58:26</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36e3ca0d88c1e353c324')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36e3ca0d88c1e353c324')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:58:15</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36d9ca0d88c1e353c323')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36d9ca0d88c1e353c323')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:58:05</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36cfca0d88c1e353c322')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36cfca0d88c1e353c322')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:57:38</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a36b6ca0d88c1e353c321')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a36b6ca0d88c1e353c321')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:55:57</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a364dca0d88c1e353c320')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a364dca0d88c1e353c320')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:55:49</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a3648ca0d88c1e353c31f')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a3648ca0d88c1e353c31f')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:55:37</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a3639ca0d88c1e353c31e')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a3639ca0d88c1e353c31e')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <small>2025-07-18 11:55:37</small>
+                        </td>
+                        <td>
+                            <div>
+                                
+                                    <span class="text-muted">System</span>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                SYSTEM_ERROR
+                            </span>
+                        </td>
+                        <td>HTTP_REQUEST</td>
+                        <td><code>127.0.0.1</code></td>
+                        <td>
+                            <small>curl/8.7.1</small>
+                        </td>
+                        <td>
+                            
+                            <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('687a3639ca0d88c1e353c31d')">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewFullLog('687a3639ca0d88c1e353c31d')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewUserLogs('\u003cnil\u003e')">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        
+        
+        <nav aria-label="Log pagination">
+            <ul class="pagination justify-content-center">
+                
+                
+                
+                
+                
+                
+                
+                <li class="page-item active">
+                    <span class="page-link">1</span>
+                </li>
+                
+                
+                <li class="page-item">
+                    <a class="page-link" href="?page=2&page_size=10">2</a>
+                </li>
+                
+                
+                
+                <li class="page-item">
+                    <a class="page-link" href="?page=58&page_size=10">58</a>
+                </li>
+                
+                
+                
+                <li class="page-item">
+                    <a class="page-link" href="?page=2&page_size=10">Next</a>
+                </li>
+                
+            </ul>
+        </nav>
+        
+        
+    </div>
+</div>
+
+
+<div class="modal fade" id="logDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Entry Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="logDetailsContent">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/admin/static/js/admin.js"></script>
+    <script src="/admin/static/js/api-fix.js"></script>
+    
+<script>
+function refreshLogs() {
+    location.reload();
+}
+
+function exportLogs() {
+    const filters = getFilters();
+    const queryString = new URLSearchParams(filters).toString();
+    
+    makeAPICall(`/api/admin/logs?${queryString}&export=true`)
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'activity_logs.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        alert('Error exporting logs: ' + error.message);
+    });
+}
+
+function showLogDetails(logId) {
+    
+    alert(`Show quick details for log ${logId}`);
+}
+
+function viewFullLog(logId) {
+    fetch(`/api/logs/${logId}`, {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+    .then(response => response.json())
+    .then(log => {
+        const detailsHtml = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Basic Information</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>ID:</strong> <code>${log.id}</code></li>
+                        <li><strong>Event:</strong> <span class="badge bg-primary">${log.event}</span></li>
+                        <li><strong>Action:</strong> ${log.action}</li>
+                        <li><strong>Timestamp:</strong> ${new Date(log.timestamp).toLocaleString()}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>User & Request Info</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>User ID:</strong> <code>${log.user_id}</code></li>
+                        <li><strong>User Email:</strong> ${log.user_email}</li>
+                        <li><strong>IP Address:</strong> <code>${log.ip_address}</code></li>
+                        <li><strong>User Agent:</strong> <small>${log.user_agent || 'N/A'}</small></li>
+                    </ul>
+                </div>
+            </div>
+            ${log.details ? `
+            <hr>
+            <h6>Additional Details</h6>
+            <pre class="bg-light p-3 rounded"><code>${JSON.stringify(log.details, null, 2)}</code></pre>
+            ` : ''}
+        `;
+        
+        document.getElementById('logDetailsContent').innerHTML = detailsHtml;
+        new bootstrap.Modal(document.getElementById('logDetailsModal')).show();
+    })
+    .catch(error => {
+        alert('Error loading log details: ' + error.message);
+    });
+}
+
+function viewUserLogs(userId) {
+    window.location.href = `/admin/logs?user_id=${userId}`;
+}
+
+
+setInterval(function() {
+    const refreshButton = document.querySelector('[onclick="refreshLogs()"]');
+    if (refreshButton && document.visibilityState === 'visible') {
+        
+        location.reload();
+    }
+}, 30000);
+</script>
+
+</body>
+</html> 
+
+
+
+ 

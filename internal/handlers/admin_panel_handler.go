@@ -56,7 +56,15 @@ func (h *AdminPanelHandler) loadTemplates() {
 		"sub": func(a, b int) int {
 			return a - b
 		},
-	}).ParseGlob("templates/admin/*.html")
+	}).ParseFiles(
+		"templates/admin/base.html",
+		"templates/admin/login.html", 
+		"templates/admin/dashboard.html",
+		"templates/admin/users.html",
+		"templates/admin/logs.html",
+		"templates/admin/stats.html",
+		"templates/admin/deleted-users.html",
+	)
 	
 	if err != nil {
 		// Templates not loaded, will create them
@@ -72,8 +80,49 @@ type PageData struct {
 	Data        interface{}
 }
 
+// UsersPageData represents data specifically for the users page
+type UsersPageData struct {
+	Title       string
+	CurrentUser *models.UserResponse
+	CurrentTime time.Time
+	Users       []models.UserResponse
+	Total       int64
+	Page        int
+	PageSize    int
+	TotalPages  int
+}
+
+// LogsPageData represents data specifically for the logs page
+type LogsPageData struct {
+	Title       string
+	CurrentUser *models.UserResponse
+	CurrentTime time.Time
+	Logs        []models.UserLogResponse
+	Total       int64
+	Page        int
+	PageSize    int
+	TotalPages  int
+	// Add filter values for template
+	CurrentUserID   string
+	CurrentEvent    string
+	CurrentAction   string
+	CurrentPageSize string
+}
+
 // DashboardData represents data for the admin dashboard
 type DashboardData struct {
+	Stats       map[string]interface{}
+	UserCount   int64
+	LogCount    int64
+	RecentUsers []models.UserResponse
+	RecentLogs  []models.UserLogResponse
+}
+
+// DashboardPageData represents data specifically for the dashboard page
+type DashboardPageData struct {
+	Title       string
+	CurrentUser *models.UserResponse
+	CurrentTime time.Time
 	Stats       map[string]interface{}
 	UserCount   int64
 	LogCount    int64
@@ -102,7 +151,10 @@ func (h *AdminPanelHandler) Dashboard(c *gin.Context) {
 		Page: 1, PageSize: 5,
 	})
 
-	data := DashboardData{
+	dashboardPageData := DashboardPageData{
+		Title:       "Admin Dashboard",
+		CurrentUser: user,
+		CurrentTime: time.Now(),
 		Stats:       stats,
 		UserCount:   recentUsersResp.Total,
 		LogCount:    int64(len(recentLogsResp.Logs)),
@@ -110,14 +162,7 @@ func (h *AdminPanelHandler) Dashboard(c *gin.Context) {
 		RecentLogs:  recentLogsResp.Logs,
 	}
 
-	pageData := PageData{
-		Title:       "Admin Dashboard",
-		CurrentUser: user,
-		CurrentTime: time.Now(),
-		Data:        data,
-	}
-
-	h.renderTemplate(c, "dashboard", pageData)
+	h.renderDashboardTemplate(c, "dashboard", dashboardPageData)
 }
 
 // Users renders the users management page
@@ -149,14 +194,18 @@ func (h *AdminPanelHandler) Users(c *gin.Context) {
 		usersResp = &models.UsersListResponse{}
 	}
 
-	pageData := PageData{
+	usersPageData := UsersPageData{
 		Title:       "User Management",
 		CurrentUser: user,
 		CurrentTime: time.Now(),
-		Data:        usersResp,
+		Users:       usersResp.Users,
+		Total:       usersResp.Total,
+		Page:        usersResp.Page,
+		PageSize:    usersResp.PageSize,
+		TotalPages:  usersResp.TotalPages,
 	}
 
-	h.renderTemplate(c, "users", pageData)
+	h.renderUsersTemplate(c, "users", usersPageData)
 }
 
 // Logs renders the logs management page
@@ -171,6 +220,7 @@ func (h *AdminPanelHandler) Logs(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 	userID := c.Query("user_id")
 	event := c.Query("event")
+	action := c.Query("action")  // Add action parameter
 
 	filter := models.LogFilterRequest{
 		Page: page, PageSize: pageSize,
@@ -189,19 +239,31 @@ func (h *AdminPanelHandler) Logs(c *gin.Context) {
 		}
 	}
 
+	if action != "" {
+		filter.Action = action  // Add action filtering
+	}
+
 	logsResp, err := h.logRepo.List(c.Request.Context(), filter)
 	if err != nil {
 		logsResp = &models.UserLogsListResponse{}
 	}
 
-	pageData := PageData{
-		Title:       "Activity Logs",
-		CurrentUser: user,
-		CurrentTime: time.Now(),
-		Data:        logsResp,
+	logsPageData := LogsPageData{
+		Title:           "Activity Logs",
+		CurrentUser:     user,
+		CurrentTime:     time.Now(),
+		Logs:            logsResp.Logs,
+		Total:           logsResp.Total,
+		Page:            logsResp.Page,
+		PageSize:        logsResp.PageSize,
+		TotalPages:      logsResp.TotalPages,
+		CurrentUserID:   userID,
+		CurrentEvent:    event,
+		CurrentAction:   action,
+		CurrentPageSize: strconv.Itoa(pageSize),
 	}
 
-	h.renderTemplate(c, "logs", pageData)
+	h.renderLogsTemplate(c, "logs", logsPageData)
 }
 
 // Stats renders the system statistics page
@@ -297,17 +359,143 @@ func (h *AdminPanelHandler) getCurrentUser(c *gin.Context) *models.UserResponse 
 }
 
 func (h *AdminPanelHandler) renderTemplate(c *gin.Context, templateName string, data PageData) {
-	// Try with .html extension first
-	templateWithExt := templateName + ".html"
+	// Create a fresh template instance for this specific template to avoid conflicts
+	templateFiles := []string{
+		"templates/admin/base.html",
+		"templates/admin/" + templateName + ".html",
+	}
 	
-	// If templates are not loaded, render JSON fallback
-	if h.templates.Lookup(templateWithExt) == nil {
-		c.JSON(http.StatusOK, data)
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"formatTime": func(t time.Time) string {
+			return t.Format("2006-01-02 15:04:05")
+		},
+		"formatDate": func(t time.Time) string {
+			return t.Format("2006-01-02")
+		},
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+	}).ParseFiles(templateFiles...)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Template parsing failed: " + err.Error()})
 		return
 	}
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
-	if err := h.templates.ExecuteTemplate(c.Writer, templateWithExt, data); err != nil {
+	if err := tmpl.ExecuteTemplate(c.Writer, templateName + ".html", data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+func (h *AdminPanelHandler) renderUsersTemplate(c *gin.Context, templateName string, data UsersPageData) {
+	// Create a fresh template instance for this specific template to avoid conflicts
+	templateFiles := []string{
+		"templates/admin/base.html",
+		"templates/admin/" + templateName + ".html",
+	}
+	
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"formatTime": func(t time.Time) string {
+			return t.Format("2006-01-02 15:04:05")
+		},
+		"formatDate": func(t time.Time) string {
+			return t.Format("2006-01-02")
+		},
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+	}).ParseFiles(templateFiles...)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Template parsing failed: " + err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.ExecuteTemplate(c.Writer, templateName + ".html", data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+func (h *AdminPanelHandler) renderLogsTemplate(c *gin.Context, templateName string, data LogsPageData) {
+	// Create a fresh template instance for this specific template to avoid conflicts
+	templateFiles := []string{
+		"templates/admin/base.html",
+		"templates/admin/" + templateName + ".html",
+	}
+	
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"formatTime": func(t time.Time) string {
+			return t.Format("2006-01-02 15:04:05")
+		},
+		"formatDate": func(t time.Time) string {
+			return t.Format("2006-01-02")
+		},
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+		"sequence": func(start, end int) []int {
+			if end < start {
+				return []int{}
+			}
+			seq := make([]int, end-start+1)
+			for i := range seq {
+				seq[i] = start + i
+			}
+			return seq
+		},
+	}).ParseFiles(templateFiles...)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Template parsing failed: " + err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.ExecuteTemplate(c.Writer, templateName + ".html", data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+func (h *AdminPanelHandler) renderDashboardTemplate(c *gin.Context, templateName string, data DashboardPageData) {
+	// Create a fresh template instance for this specific template to avoid conflicts
+	templateFiles := []string{
+		"templates/admin/base.html",
+		"templates/admin/" + templateName + ".html",
+	}
+	
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"formatTime": func(t time.Time) string {
+			return t.Format("2006-01-02 15:04:05")
+		},
+		"formatDate": func(t time.Time) string {
+			return t.Format("2006-01-02")
+		},
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+	}).ParseFiles(templateFiles...)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Template parsing failed: " + err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	if err := tmpl.ExecuteTemplate(c.Writer, templateName + ".html", data); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }

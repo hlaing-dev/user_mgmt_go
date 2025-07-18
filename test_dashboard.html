@@ -1,15 +1,70 @@
-{{template "base.html" .}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - User Management Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/admin/static/css/admin.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="bi bi-shield-check"></i> Admin Panel</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="/admin/dashboard" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a href="/admin/users" class="sidebar-link"><i class="bi bi-people"></i> Users</a></li>
+                <li><a href="/admin/logs" class="sidebar-link"><i class="bi bi-journal-text"></i> Activity Logs</a></li>
+                <li><a href="/admin/stats" class="sidebar-link"><i class="bi bi-graph-up"></i> Statistics</a></li>
+                <li><a href="/admin/deleted-users" class="sidebar-link"><i class="bi bi-trash"></i> Deleted Users</a></li>
+                <li class="nav-divider"></li>
+                <li><a href="/swagger/index.html" class="sidebar-link" target="_blank"><i class="bi bi-file-text"></i> API Docs</a></li>
+                <li><a href="#" onclick="logout()" class="sidebar-link text-danger"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            </ul>
+        </nav>
 
-{{define "content"}}
+        
+        <div id="content" class="content">
+            
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="d-flex align-items-center ms-auto">
+                        
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Test Name 2
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/api/auth/profile">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </nav>
+
+            
+            <div class="container-fluid mt-4">
+                
 <div class="row mb-4">
-    <!-- Statistics Cards -->
+    
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Users</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{.UserCount}}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">1</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-people fa-2x text-gray-300"></i>
@@ -26,11 +81,9 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">System Health</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            {{if .Stats.database_health}}
-                                <span class="text-success">Healthy</span>
-                            {{else}}
+                            
                                 <span class="text-danger">Issues</span>
-                            {{end}}
+                            
                         </div>
                     </div>
                     <div class="col-auto">
@@ -47,7 +100,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Recent Activity</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{.LogCount}}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-activity fa-2x text-gray-300"></i>
@@ -64,11 +117,9 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Storage Used</div>
                                                   <div class="h5 mb-0 font-weight-bold text-gray-800">
-                              {{if .Stats.storage_used}}
-                                  {{.Stats.storage_used}}%
-                              {{else}}
+                              
                                   N/A
-                              {{end}}
+                              
                         </div>
                     </div>
                     <div class="col-auto">
@@ -81,7 +132,7 @@
 </div>
 
 <div class="row">
-    <!-- Recent Users -->
+    
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -89,7 +140,7 @@
                 <a href="/admin/users" class="btn btn-sm btn-primary">View All</a>
             </div>
             <div class="card-body">
-                {{if .RecentUsers}}
+                
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
@@ -101,29 +152,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{range .RecentUsers}}
+                            
                             <tr>
-                                <td>{{.Name}}</td>
-                                <td>{{.Email}}</td>
-                                <td>{{formatDate .CreatedAt}}</td>
+                                <td>Test Name 2</td>
+                                <td>admin@example.com</td>
+                                <td>2025-07-17</td>
                                 <td>
-                                    <a href="/admin/users?user_id={{.ID}}" class="btn btn-sm btn-outline-primary">
+                                    <a href="/admin/users?user_id=99eecfcf-c795-4409-9d84-442f2c541622" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </td>
                             </tr>
-                            {{end}}
+                            
                         </tbody>
                     </table>
                 </div>
-                {{else}}
-                <p class="text-muted">No recent users</p>
-                {{end}}
+                
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity -->
+    
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -131,7 +180,7 @@
                 <a href="/admin/logs" class="btn btn-sm btn-primary">View All</a>
             </div>
             <div class="card-body">
-                {{if .RecentLogs}}
+                
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
@@ -143,36 +192,92 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{range .RecentLogs}}
+                            
                             <tr>
                                 <td>
-                                    {{if .UserID}}
-                                        <small class="text-muted">{{.UserID}}</small>
-                                    {{else}}
+                                    
                                         <span class="text-muted">System</span>
-                                    {{end}}
+                                    
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{if eq .Event "login"}}success{{else if eq .Event "logout"}}warning{{else if eq .Event "user_created"}}primary{{else}}secondary{{end}}">
-                                        {{.Event}}
+                                    <span class="badge bg-secondary">
+                                        SYSTEM_ERROR
                                     </span>
                                 </td>
-                                <td>{{formatTime .Timestamp}}</td>
-                                <td><small>{{.IPAddress}}</small></td>
+                                <td>2025-07-18 11:58:50</td>
+                                <td><small>127.0.0.1</small></td>
                             </tr>
-                            {{end}}
+                            
+                            <tr>
+                                <td>
+                                    
+                                        <span class="text-muted">System</span>
+                                    
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        SYSTEM_ERROR
+                                    </span>
+                                </td>
+                                <td>2025-07-18 11:58:40</td>
+                                <td><small>127.0.0.1</small></td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    
+                                        <span class="text-muted">System</span>
+                                    
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        SYSTEM_ERROR
+                                    </span>
+                                </td>
+                                <td>2025-07-18 11:58:26</td>
+                                <td><small>127.0.0.1</small></td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    
+                                        <span class="text-muted">System</span>
+                                    
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        SYSTEM_ERROR
+                                    </span>
+                                </td>
+                                <td>2025-07-18 11:58:15</td>
+                                <td><small>127.0.0.1</small></td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    
+                                        <span class="text-muted">System</span>
+                                    
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        SYSTEM_ERROR
+                                    </span>
+                                </td>
+                                <td>2025-07-18 11:58:05</td>
+                                <td><small>127.0.0.1</small></td>
+                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>
-                {{else}}
-                <p class="text-muted">No recent activity</p>
-                {{end}}
+                
             </div>
         </div>
     </div>
 </div>
 
-<!-- System Information -->
+
 <div class="row">
     <div class="col-12">
         <div class="card shadow">
@@ -186,20 +291,20 @@
                         <ul class="list-unstyled">
                             <li>
                                 <strong>PostgreSQL:</strong> 
-                                                                  <span class="badge bg-{{if .Stats.database_health}}success{{else}}danger{{end}}">
-                                     {{if .Stats.database_health}}Connected{{else}}Disconnected{{end}}
+                                                                  <span class="badge bg-danger">
+                                     Disconnected
                                 </span>
                             </li>
-                            <li><strong>Total Tables:</strong> {{if .Stats.total_tables}}{{.Stats.total_tables}}{{else}}N/A{{end}}</li>
-                            <li><strong>Last Backup:</strong> {{if .Stats.last_backup}}{{.Stats.last_backup}}{{else}}Never{{end}}</li>
+                            <li><strong>Total Tables:</strong> N/A</li>
+                            <li><strong>Last Backup:</strong> Never</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <h6>Performance Metrics</h6>
                         <ul class="list-unstyled">
-                            <li><strong>Uptime:</strong> {{if .Stats.uptime}}{{.Stats.uptime}}{{else}}N/A{{end}}</li>
-                            <li><strong>Memory Usage:</strong> {{if .Stats.memory_usage}}{{.Stats.memory_usage}}{{else}}N/A{{end}}</li>
-                            <li><strong>CPU Usage:</strong> {{if .Stats.cpu_usage}}{{.Stats.cpu_usage}}{{else}}N/A{{end}}</li>
+                            <li><strong>Uptime:</strong> N/A</li>
+                            <li><strong>Memory Usage:</strong> N/A</li>
+                            <li><strong>CPU Usage:</strong> N/A</li>
                         </ul>
                     </div>
                 </div>
@@ -208,7 +313,7 @@
     </div>
 </div>
 
-<!-- Quick Actions -->
+
 <div class="row mt-4">
     <div class="col-12">
         <div class="card shadow">
@@ -242,12 +347,18 @@
         </div>
     </div>
 </div>
-{{end}}
 
-{{define "scripts"}}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/admin/static/js/admin.js"></script>
+    <script src="/admin/static/js/api-fix.js"></script>
+    
 <script>
 function openCreateUserModal() {
-    // This would open a modal for creating users
+    
     window.location.href = '/admin/users?action=create';
 }
 
@@ -271,4 +382,10 @@ function runMaintenance() {
     }
 }
 </script>
-{{end}} 
+
+</body>
+</html> 
+
+
+
+ 

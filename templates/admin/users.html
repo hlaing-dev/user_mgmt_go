@@ -6,7 +6,7 @@
         <!-- Search and Filter -->
         <form method="GET" class="d-flex gap-2">
             <input type="text" name="search" class="form-control" placeholder="Search users by name or email..." 
-                   value="{{index .Data "search"}}" />
+                   value="" />
             <select name="page_size" class="form-select" style="width: auto;">
                 <option value="10">10 per page</option>
                 <option value="25">25 per page</option>
@@ -32,13 +32,13 @@
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">
             Users Management 
-            {{if .Data.Total}}
-                <span class="badge bg-secondary">{{.Data.Total}} total</span>
+            {{if .Total}}
+                <span class="badge bg-secondary">{{.Total}} total</span>
             {{end}}
         </h6>
     </div>
     <div class="card-body">
-        {{if .Data.Users}}
+        {{if .Users}}
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-light">
@@ -52,7 +52,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{range .Data.Users}}
+                    {{range .Users}}
                     <tr>
                         <td><small><code>{{.ID}}</code></small></td>
                         <td><strong>{{.Name}}</strong></td>
@@ -82,24 +82,24 @@
         </div>
 
         <!-- Pagination -->
-        {{if gt .Data.TotalPages 1}}
+        {{if gt .TotalPages 1}}
         <nav aria-label="User pagination">
             <ul class="pagination justify-content-center">
-                {{if gt .Data.Page 1}}
+                {{if gt .Page 1}}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{sub .Data.Page 1}}&page_size={{.Data.PageSize}}">Previous</a>
+                    <a class="page-link" href="?page={{sub .Page 1}}&page_size={{.PageSize}}">Previous</a>
                 </li>
                 {{end}}
                 
-                {{range $i := (slice 1 (add .Data.TotalPages 1))}}
-                <li class="page-item {{if eq $i $.Data.Page}}active{{end}}">
-                    <a class="page-link" href="?page={{$i}}&page_size={{$.Data.PageSize}}">{{$i}}</a>
+                {{range $i := (slice 1 (add .TotalPages 1))}}
+                <li class="page-item {{if eq $i $.Page}}active{{end}}">
+                    <a class="page-link" href="?page={{$i}}&page_size={{$.PageSize}}">{{$i}}</a>
                 </li>
                 {{end}}
                 
-                {{if lt .Data.Page .Data.TotalPages}}
+                {{if lt .Page .TotalPages}}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{add .Data.Page 1}}&page_size={{.Data.PageSize}}">Next</a>
+                    <a class="page-link" href="?page={{add .Page 1}}&page_size={{.PageSize}}">Next</a>
                 </li>
                 {{end}}
             </ul>

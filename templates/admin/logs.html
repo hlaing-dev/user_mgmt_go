@@ -13,33 +13,36 @@
                     <div class="col-md-3">
                         <label class="form-label">User ID</label>
                         <input type="text" name="user_id" class="form-control" placeholder="User UUID..." 
-                               value="{{index .Data "user_id"}}">
+                               value="{{.CurrentUserID}}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Event Type</label>
                         <select name="event" class="form-select">
                             <option value="">All Events</option>
-                            <option value="login">Login</option>
-                            <option value="logout">Logout</option>
-                            <option value="user_created">User Created</option>
-                            <option value="user_updated">User Updated</option>
-                            <option value="user_deleted">User Deleted</option>
-                            <option value="password_changed">Password Changed</option>
+                            <option value="LOGIN_SUCCESS" {{if eq .CurrentEvent "LOGIN_SUCCESS"}}selected{{end}}>Login Success</option>
+                            <option value="LOGIN_FAILED" {{if eq .CurrentEvent "LOGIN_FAILED"}}selected{{end}}>Login Failed</option>
+                            <option value="ADMIN_LOGIN" {{if eq .CurrentEvent "ADMIN_LOGIN"}}selected{{end}}>Admin Login</option>
+                            <option value="ADMIN_LOGOUT" {{if eq .CurrentEvent "ADMIN_LOGOUT"}}selected{{end}}>Admin Logout</option>
+                            <option value="USER_CREATED" {{if eq .CurrentEvent "USER_CREATED"}}selected{{end}}>User Created</option>
+                            <option value="USER_UPDATED" {{if eq .CurrentEvent "USER_UPDATED"}}selected{{end}}>User Updated</option>
+                            <option value="USER_DELETED" {{if eq .CurrentEvent "USER_DELETED"}}selected{{end}}>User Deleted</option>
+                            <option value="TOKEN_REFRESH" {{if eq .CurrentEvent "TOKEN_REFRESH"}}selected{{end}}>Token Refresh</option>
+                            <option value="SYSTEM_ERROR" {{if eq .CurrentEvent "SYSTEM_ERROR"}}selected{{end}}>System Error</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Page Size</label>
                         <select name="page_size" class="form-select">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
+                            <option value="10" {{if eq .CurrentPageSize "10"}}selected{{end}}>10</option>
+                            <option value="25" {{if eq .CurrentPageSize "25"}}selected{{end}}>25</option>
+                            <option value="50" {{if eq .CurrentPageSize "50"}}selected{{end}}>50</option>
+                            <option value="100" {{if eq .CurrentPageSize "100"}}selected{{end}}>100</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Action</label>
                         <input type="text" name="action" class="form-control" placeholder="Action..." 
-                               value="{{index .Data "action"}}">
+                               value="{{.CurrentAction}}">
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">
@@ -60,8 +63,8 @@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">
             Activity Logs
-            {{if .Data.Total}}
-                <span class="badge bg-secondary">{{.Data.Total}} total</span>
+            {{if .Total}}
+                <span class="badge bg-secondary">{{.Total}} total</span>
             {{end}}
         </h6>
         <div>
@@ -74,7 +77,7 @@
         </div>
     </div>
     <div class="card-body">
-        {{if .Data.Logs}}
+        {{if .Logs}}
         <div class="table-responsive">
             <table class="table table-bordered table-hover table-sm">
                 <thead class="table-light">
@@ -90,15 +93,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{range .Data.Logs}}
+                    {{range .Logs}}
                     <tr>
                         <td>
                             <small>{{formatTime .Timestamp}}</small>
                         </td>
                         <td>
                             <div>
-                                <strong>{{.UserEmail}}</strong>
-                                <br><small class="text-muted">{{.UserID}}</small>
+                                {{if .UserID}}
+                                    <small class="text-muted">{{.UserID}}</small>
+                                {{else}}
+                                    <span class="text-muted">System</span>
+                                {{end}}
                             </div>
                         </td>
                         <td>
@@ -106,13 +112,13 @@
                                 {{.Event}}
                             </span>
                         </td>
-                        <td>{{.Action}}</td>
+                        <td>{{.Data.Action}}</td>
                         <td><code>{{.IPAddress}}</code></td>
                         <td>
                             <small>{{if .UserAgent}}{{.UserAgent}}{{else}}N/A{{end}}</small>
                         </td>
                         <td>
-                            {{if .Details}}
+                            {{if .Data.Details}}
                             <button class="btn btn-sm btn-outline-info" onclick="showLogDetails('{{.ID}}')">
                                 <i class="bi bi-info-circle"></i>
                             </button>
@@ -137,26 +143,47 @@
         </div>
 
         <!-- Pagination -->
-        {{if gt .Data.TotalPages 1}}
+        {{if gt .TotalPages 1}}
         <nav aria-label="Log pagination">
             <ul class="pagination justify-content-center">
-                {{if gt .Data.Page 1}}
+                {{if gt .Page 1}}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{sub .Data.Page 1}}&page_size={{.Data.PageSize}}">Previous</a>
+                    <a class="page-link" href="?page={{sub .Page 1}}&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">Previous</a>
                 </li>
                 {{end}}
                 
-                {{range $i := (slice 1 (add .Data.TotalPages 1))}}
-                {{if le $i 10}}
-                <li class="page-item {{if eq $i $.Data.Page}}active{{end}}">
-                    <a class="page-link" href="?page={{$i}}&page_size={{$.Data.PageSize}}">{{$i}}</a>
+                <!-- Show current page and a few around it -->
+                {{if gt .Page 1}}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">1</a>
                 </li>
                 {{end}}
+                
+                {{if gt .Page 2}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{sub .Page 1}}&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">{{sub .Page 1}}</a>
+                </li>
                 {{end}}
                 
-                {{if lt .Data.Page .Data.TotalPages}}
+                <li class="page-item active">
+                    <span class="page-link">{{.Page}}</span>
+                </li>
+                
+                {{if lt .Page .TotalPages}}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{add .Data.Page 1}}&page_size={{.Data.PageSize}}">Next</a>
+                    <a class="page-link" href="?page={{add .Page 1}}&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">{{add .Page 1}}</a>
+                </li>
+                {{end}}
+                
+                {{if gt .TotalPages .Page}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{.TotalPages}}&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">{{.TotalPages}}</a>
+                </li>
+                {{end}}
+                
+                {{if lt .Page .TotalPages}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{add .Page 1}}&page_size={{.PageSize}}{{if .CurrentUserID}}&user_id={{.CurrentUserID}}{{end}}{{if .CurrentEvent}}&event={{.CurrentEvent}}{{end}}{{if .CurrentAction}}&action={{.CurrentAction}}{{end}}">Next</a>
                 </li>
                 {{end}}
             </ul>
