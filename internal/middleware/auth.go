@@ -12,30 +12,37 @@ import (
 // AuthMiddleware creates authentication middleware
 func AuthMiddleware(jwtManager *utils.JWTManager) gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
-		// Extract token from Authorization header
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, models.NewErrorResponse(
-				http.StatusUnauthorized,
-				"Unauthorized",
-				"Authorization header is required",
-				nil,
-			))
-			c.Abort()
-			return
-		}
+		var token string
+		var err error
 
-		// Extract token from "Bearer <token>" format
-		token, err := utils.ExtractTokenFromHeader(authHeader)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, models.NewErrorResponse(
-				http.StatusUnauthorized,
-				"Unauthorized",
-				err.Error(),
-				nil,
-			))
-			c.Abort()
-			return
+		// Extract token from Authorization header first
+		authHeader := c.GetHeader("Authorization")
+		if authHeader != "" {
+			// Extract token from "Bearer <token>" format
+			token, err = utils.ExtractTokenFromHeader(authHeader)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, models.NewErrorResponse(
+					http.StatusUnauthorized,
+					"Unauthorized",
+					err.Error(),
+					nil,
+				))
+				c.Abort()
+				return
+			}
+		} else {
+			// If no Authorization header, check for admin_token cookie (for admin panel)
+			token, err = c.Cookie("admin_token")
+			if err != nil || token == "" {
+				c.JSON(http.StatusUnauthorized, models.NewErrorResponse(
+					http.StatusUnauthorized,
+					"Unauthorized",
+					"Authorization header is required",
+					nil,
+				))
+				c.Abort()
+				return
+			}
 		}
 
 		// Validate token

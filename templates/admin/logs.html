@@ -195,8 +195,24 @@ function refreshLogs() {
 }
 
 function exportLogs() {
-    // This would trigger a CSV/JSON export of current filtered logs
-    alert('Export feature - would download filtered logs as CSV/JSON');
+    const filters = getFilters();
+    const queryString = new URLSearchParams(filters).toString();
+    
+    makeAPICall(`/api/admin/logs?${queryString}&export=true`)
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'activity_logs.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        alert('Error exporting logs: ' + error.message);
+    });
 }
 
 function showLogDetails(logId) {

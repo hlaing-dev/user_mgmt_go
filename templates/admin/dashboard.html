@@ -247,12 +247,8 @@ function openCreateUserModal() {
 
 function runMaintenance() {
     if (confirm('Are you sure you want to run system maintenance?')) {
-        fetch('/api/admin/maintenance', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }
+        makeAPICall('/api/admin/maintenance', {
+            method: 'POST'
         })
         .then(response => response.json())
         .then(data => {

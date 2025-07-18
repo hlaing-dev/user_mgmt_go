@@ -70,7 +70,7 @@
                                 <button class="btn btn-outline-info" onclick="viewUserLogs('{{.ID}}')">
                                     <i class="bi bi-clock-history"></i>
                                 </button>
-                                <button class="btn btn-outline-danger" onclick="deleteUser('{{.ID}}', '{{.Email}}')">
+                                <button class="btn btn-outline-danger" onclick="deleteUser('{{.ID}}')">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -179,7 +179,7 @@ function openBulkCreateModal() {
 }
 
 function viewUser(userId) {
-    fetch(`/api/users/${userId}`, {
+    makeAPICall(`/api/users/${userId}`, {
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -221,13 +221,10 @@ function viewUserLogs(userId) {
     window.location.href = `/admin/logs?user_id=${userId}`;
 }
 
-function deleteUser(userId, userEmail) {
+function deleteUser(userId) {
     if (confirm(`Are you sure you want to delete user "${userEmail}"? This action can be undone from the deleted users page.`)) {
-        fetch(`/api/users/${userId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
+        makeAPICall(`/api/users/${userId}`, {
+            method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
@@ -254,7 +251,7 @@ document.getElementById('createUserForm').addEventListener('submit', function(e)
         password: document.getElementById('userPassword').value
     };
     
-    fetch('/api/users', {
+    makeAPICall('/api/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

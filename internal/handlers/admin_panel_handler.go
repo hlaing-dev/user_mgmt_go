@@ -297,14 +297,17 @@ func (h *AdminPanelHandler) getCurrentUser(c *gin.Context) *models.UserResponse 
 }
 
 func (h *AdminPanelHandler) renderTemplate(c *gin.Context, templateName string, data PageData) {
+	// Try with .html extension first
+	templateWithExt := templateName + ".html"
+	
 	// If templates are not loaded, render JSON fallback
-	if h.templates.Lookup(templateName) == nil {
+	if h.templates.Lookup(templateWithExt) == nil {
 		c.JSON(http.StatusOK, data)
 		return
 	}
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
-	if err := h.templates.ExecuteTemplate(c.Writer, templateName, data); err != nil {
+	if err := h.templates.ExecuteTemplate(c.Writer, templateWithExt, data); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }

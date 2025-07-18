@@ -62,10 +62,10 @@
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
-                                <button class="btn btn-success" onclick="restoreUser('{{.ID}}', '{{.Email}}')" title="Restore User">
+                                <button class="btn btn-success" onclick="restoreUser('{{.ID}}')" title="Restore User">
                                     <i class="bi bi-arrow-clockwise"></i> Restore
                                 </button>
-                                <button class="btn btn-danger" onclick="permanentDeleteUser('{{.ID}}', '{{.Email}}')" title="Permanent Delete">
+                                <button class="btn btn-danger" onclick="permanentDeleteUser('{{.ID}}')" title="Permanent Delete">
                                     <i class="bi bi-trash3"></i> Delete Forever
                                 </button>
                                 <button class="btn btn-info" onclick="viewDeletedUserLogs('{{.ID}}')" title="View Logs">
@@ -181,57 +181,43 @@ function updateBulkDeleteButton() {
     }
 }
 
-function restoreUser(userId, userEmail) {
-    if (confirm(`Are you sure you want to restore user "${userEmail}"? They will be able to login again.`)) {
-        fetch(`/api/admin/users/${userId}/restore`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }
+function restoreUser(userId) {
+    if (confirm('Are you sure you want to restore this user?')) {
+        makeAPICall(`/api/admin/users/${userId}/restore`, {
+            method: 'POST'
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success || response.ok) {
+            if (data.success) {
                 alert('User restored successfully');
                 location.reload();
             } else {
-                alert('Failed to restore user: ' + (data.message || 'Unknown error'));
+                alert('Error: ' + (data.message || 'Failed to restore user'));
             }
         })
         .catch(error => {
-            alert('Error restoring user: ' + error.message);
+            alert('Error: ' + error.message);
         });
     }
 }
 
-function permanentDeleteUser(userId, userEmail) {
-    const confirmMessage = `⚠️ PERMANENT DELETE WARNING ⚠️\n\nYou are about to PERMANENTLY delete user "${userEmail}".\n\nThis action:\n- CANNOT be undone\n- Will remove ALL user data\n- Will keep logs for audit purposes\n\nType "DELETE" to confirm:`;
-    
-    const confirmation = prompt(confirmMessage);
-    
-    if (confirmation === 'DELETE') {
-        fetch(`/api/admin/users/${userId}/permanent-delete`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }
+function permanentDeleteUser(userId) {
+    if (confirm('Are you sure you want to PERMANENTLY delete this user? This action cannot be undone!')) {
+        makeAPICall(`/api/admin/users/${userId}/permanent-delete`, {
+            method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success || response.ok) {
+            if (data.success) {
                 alert('User permanently deleted');
                 location.reload();
             } else {
-                alert('Failed to permanently delete user: ' + (data.message || 'Unknown error'));
+                alert('Error: ' + (data.message || 'Failed to delete user'));
             }
         })
         .catch(error => {
-            alert('Error permanently deleting user: ' + error.message);
+            alert('Error: ' + error.message);
         });
-    } else if (confirmation !== null) {
-        alert('Permanent deletion cancelled. You must type "DELETE" exactly to confirm.');
     }
 }
 

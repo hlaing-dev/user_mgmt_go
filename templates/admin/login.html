@@ -202,16 +202,21 @@
                     setTimeout(() => {
                         window.location.href = '/admin/dashboard';
                     }, 1000);
+                    
                 } else {
-                    throw new Error(data.message || 'Login failed');
+                    // Show error message
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + (data.message || 'Login failed');
+                    statusDiv.style.display = 'block';
                 }
             })
             .catch(error => {
                 statusDiv.className = 'alert alert-danger';
-                statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + error.message;
+                statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Connection error: ' + error.message;
                 statusDiv.style.display = 'block';
-                
-                // Reset button
+            })
+            .finally(() => {
+                // Restore button state
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
             });
@@ -241,5 +246,6 @@
             });
         }
     </script>
+    <script src="/admin/static/js/api-fix.js"></script>
 </body>
 </html> 

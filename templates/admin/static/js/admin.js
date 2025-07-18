@@ -353,4 +353,42 @@
         }
     });
 
+    // Global logout function
+    window.logout = function() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Call logout API
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include', // Include cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(() => {
+                // Clear any localStorage data
+                localStorage.clear();
+                // Redirect to login page
+                window.location.href = '/admin/login';
+            })
+            .catch(() => {
+                // Even if API call fails, redirect to login
+                localStorage.clear();
+                window.location.href = '/admin/login';
+            });
+        }
+    };
+
+    // Make API call with cookies (no Authorization header needed)
+    window.makeAPICall = function(url, options = {}) {
+        const defaultOptions = {
+            credentials: 'include', // Always include cookies
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        };
+        
+        return fetch(url, { ...defaultOptions, ...options });
+    };
+
 })(); 
