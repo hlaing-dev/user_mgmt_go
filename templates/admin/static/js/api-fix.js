@@ -66,85 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Fix user management functions
-    window.createUser = function() {
-        const userData = {
-            name: document.getElementById('userName').value,
-            email: document.getElementById('userEmail').value,
-            password: document.getElementById('userPassword').value
-        };
-
-        fetch('/api/users', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.id) {
-                alert('User created successfully');
-                location.reload();
-            } else {
-                alert('Error: ' + (data.message || 'Failed to create user'));
-            }
-        })
-        .catch(error => {
-            alert('Error: ' + error.message);
-        });
-    };
-
-    window.updateUser = function(userId) {
-        const userData = {
-            name: document.getElementById('editUserName').value,
-            email: document.getElementById('editUserEmail').value
-        };
-
-        fetch(`/api/users/${userId}`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.id) {
-                alert('User updated successfully');
-                location.reload();
-            } else {
-                alert('Error: ' + (data.message || 'Failed to update user'));
-            }
-        })
-        .catch(error => {
-            alert('Error: ' + error.message);
-        });
-    };
-
-    window.deleteUser = function(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            fetch(`/api/users/${userId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('User deleted successfully');
-                    location.reload();
-                } else {
-                    alert('Error: ' + (data.message || 'Failed to delete user'));
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
-        }
-    };
-
     // Fix deleted users functions
     window.restoreUser = function(userId) {
         if (confirm('Are you sure you want to restore this user?')) {
@@ -190,27 +111,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     };
-
-    // Fix export logs function
-    window.exportLogs = function() {
-        fetch('/api/admin/logs?export=true', {
-            credentials: 'include'
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'activity_logs.csv';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-            alert('Error exporting logs: ' + error.message);
-        });
-    };
-
-    console.log('Admin Panel API Fix loaded - Now using cookie authentication');
 }); 

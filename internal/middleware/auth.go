@@ -37,7 +37,7 @@ func AuthMiddleware(jwtManager *utils.JWTManager) gin.HandlerFunc {
 				c.JSON(http.StatusUnauthorized, models.NewErrorResponse(
 					http.StatusUnauthorized,
 					"Unauthorized",
-					"Authorization header is required",
+					"Authentication required - provide Authorization header or valid session cookie",
 					nil,
 				))
 				c.Abort()

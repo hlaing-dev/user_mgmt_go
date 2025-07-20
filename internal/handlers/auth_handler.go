@@ -109,9 +109,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// Always set HTTP-only cookies for admin panel usage
 	// This allows the admin panel to work with server-side authentication
-	c.SetCookie("admin_token", tokenPair.AccessToken, 3600, "/admin", "", false, true)
+	c.SetCookie("admin_token", tokenPair.AccessToken, 3600, "/", "", false, true)
 	if tokenPair.RefreshToken != "" {
-		c.SetCookie("admin_refresh_token", tokenPair.RefreshToken, 7*24*3600, "/admin", "", false, true)
+		c.SetCookie("admin_refresh_token", tokenPair.RefreshToken, 7*24*3600, "/", "", false, true)
 	}
 
 	// Return login response
